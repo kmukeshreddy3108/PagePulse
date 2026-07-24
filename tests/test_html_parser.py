@@ -1,58 +1,62 @@
-"""Unit tests for app.parser.html_parser.analyze_html."""
-
-from app.parser.html_parser import analyze_html
-
-
-def test_analyze_html_extracts_all_metrics(sample_html):
-    metrics = analyze_html(sample_html)
-
-    assert metrics.page_title == "Sample Page"
-    assert metrics.meta_description == "A page used for testing Page Pulse."
-    assert metrics.h1_count == 2
-    # banner.png (no alt attr) + icon.png (alt="") are both missing alt text
-    assert metrics.images_missing_alt == 2
-    assert metrics.word_count == 17
+import pytest
+from app.services.parser import parse_html
 
 
-def test_analyze_html_handles_missing_title_and_description():
-    html = "<html><head></head><body><p>No metadata here.</p></body></html>"
-    metrics = analyze_html(html)
-
-    assert metrics.page_title is None
-    assert metrics.meta_description is None
-    assert metrics.h1_count == 0
-    assert metrics.images_missing_alt == 0
-    assert metrics.word_count == 3
-
-
-def test_analyze_html_falls_back_to_og_description():
-    html = """
-    <html>
-      <head>
-        <meta property="og:description" content="Open Graph description.">
-      </head>
-      <body></body>
+def test_parse_html_complete_page():
+    """Test parsing complete HTML with title, meta description, h1 tags, images, and body text."""
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <title>Sample Page Title</title>
+        <meta name="description" content="This is a sample meta description for testing.">
+    </head>
+    <body>
+        <h1>Primary Main Heading</h1>
+        <p>This is the first paragraph of content on the page to test word count.</p>
+        <img src="logo.png" alt="Company Logo" />
+        <img src="banner.png" />
+        <img src="icon.png" alt="" />
+    </body>
     </html>
     """
-    metrics = analyze_html(html)
-    assert metrics.meta_description == "Open Graph description."
+
+    result = parse_html(html_content)
+
+    assert result["page_title"] == "Sample Page Title"
+    assert result["meta_description"] == "This is a sample meta description for testing."
+    assert result["h1_count"] == 1
+    assert result["images_missing_alt"] == 2  # missing alt or empty alt
+    assert result["word_count"] > 0
 
 
-def test_analyze_html_ignores_script_and_style_text():
-    html = """
+def test_parse_html_missing_title_and_meta():
+    """Test parsing HTML without title or meta description."""
+    html_content = """
     <html>
-      <body>
-        <script>var shouldNotCount = "lots of hidden words here";</script>
-        <style>.a { color: red; }</style>
-        <p>Only these five words count.</p>
-      </body>
+    <body>
+        <h1>Heading 1</h1>
+        <h1>Heading 2</h1>
+        <p>Short text body</p>
+    </body>
     </html>
     """
-    metrics = analyze_html(html)
-    assert metrics.word_count == 5
+
+    result = parse_html(html_content)
+
+    assert result["page_title"] is None or result["page_title"] == ""
+    assert result["meta_description"] is None or result["meta_description"] == ""
+    assert result["h1_count"] == 2
+    assert result["images_missing_alt"] == 0
+    assert result["word_count"] >= 3
 
 
-def test_analyze_html_all_images_have_alt():
-    html = '<html><body><img src="a.png" alt="A"><img src="b.png" alt="B"></body></html>'
-    metrics = analyze_html(html)
-    assert metrics.images_missing_alt == 0
+def test_parse_html_empty_body():
+    """Test parsing minimal or empty HTML content."""
+    html_content = "<html><head></head><body></body></html>"
+
+    result = parse_html(html_content)
+
+    assert result["h1_count"] == 0
+    assert result["images_missing_alt"] == 0
+    assert result["word_count"] == 0

@@ -1,48 +1,58 @@
-"""Unit tests for app.utils.validators.validate_url."""
-
 import pytest
-
-from app.utils.exceptions import InvalidURLError
-from app.utils.validators import validate_url
+from app.services.validator import validate_url, is_private_ip, ValidationError
 
 
-@pytest.mark.parametrize(
-    "url",
-    [
+def test_validate_url_valid_public_urls():
+    """Test that standard public HTTP/HTTPS URLs pass validation."""
+    valid_urls = [
         "https://example.com",
-        "http://example.com",
-        "https://example.com/path?query=1",
+        "http://example.com/path?query=1",
+        "https://subdomain.digitalheroesco.com/page",
+        "http://google.com",
+    ]
+    for url in valid_urls:
+        assert validate_url(url) is True
+
+
+def test_validate_url_rejects_localhost_and_private_ips():
+    """Test that localhost, loopback, and private IP ranges are rejected to prevent SSRF."""
+    private_urls = [
+        "http://localhost",
         "http://localhost:8000",
-        "  https://example.com  ",  # surrounding whitespace should be trimmed
-    ],
-)
-def test_validate_url_accepts_well_formed_urls(url):
-    result = validate_url(url)
-    assert result == url.strip()
+        "http://127.0.0.1",
+        "http://127.0.0.1:8000",
+        "http://10.0.0.1",
+        "http://172.16.0.1",
+        "http://192.168.1.1",
+        "http://169.254.169.254",  # Cloud metadata
+        "http://[::1]",
+        "http://0.0.0.0",
+    ]
+    for url in private_urls:
+        with pytest.raises((ValueError, ValidationError)):
+            validate_url(url)
 
 
-@pytest.mark.parametrize(
-    "url",
-    [
+def test_validate_url_rejects_invalid_schemes_and_malformed():
+    """Test that non-HTTP schemes and malformed URLs are rejected."""
+    invalid_urls = [
+        "ftp://example.com",
+        "file:///etc/passwd",
+        "javascript:alert(1)",
+        "not_a_url",
+        "http://",
         "",
         "   ",
-        "not-a-url",
-        "ftp://example.com",
-        "example.com",  # missing scheme
-        "http://",  # missing host
-        "http://abc",  # no dot, not localhost
-        None,
-    ],
-)
-def test_validate_url_rejects_invalid_urls(url):
-    with pytest.raises(InvalidURLError):
-        validate_url(url)
+    ]
+    for url in invalid_urls:
+        with pytest.raises((ValueError, ValidationError)):
+            validate_url(url)
 
 
-def test_invalid_url_error_carries_400_status_code():
-    try:
-        validate_url("not-a-url")
-    except InvalidURLError as exc:
-        assert exc.status_code == 400
-    else:
-        pytest.fail("InvalidURLError was not raised")
+def test_is_private_ip_helper():
+    """Test the private IP detection helper directly."""
+    assert is_private_ip("127.0.0.1") is True
+    assert is_private_ip("10.0.0.5") is True
+    assert is_private_ip("192.168.0.1") is True
+    assert is_private_ip("8.8.8.8") is False
+    assert is_private_ip("1.1.1.1") is False
