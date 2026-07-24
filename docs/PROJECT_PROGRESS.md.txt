@@ -7,7 +7,7 @@ Architecture : Pending
 
 Backend : Backend ✅
 
-Frontend : Pending
+Frontend : Frontend ✅
 
 Testing : Pending
 
