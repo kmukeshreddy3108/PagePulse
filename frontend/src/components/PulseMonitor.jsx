@@ -15,7 +15,7 @@ function WaveformUnit({ color, spiky }) {
     : "L84 34 L96 54 L108 40 L120 44";
   const rest = "H400";
   return (
-    <svg viewBox="0 0 400 88" preserveAspectRatio="none">
+    <svg viewBox="0 0 400 88" preserveAspectRatio="none" aria-hidden="true">
       <path
         d={`${flat}${beat}${rest}`}
         fill="none"

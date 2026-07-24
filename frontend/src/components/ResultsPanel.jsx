@@ -20,9 +20,9 @@ function speedTone(seconds) {
 
 export default function ResultsPanel({ result, targetUrl }) {
   return (
-    <section className="results-section">
+    <section className="results-section" aria-labelledby="vitals-heading">
       <div className="results-heading-row">
-        <h2 className="results-heading">Vitals</h2>
+        <h2 id="vitals-heading" className="results-heading">Vitals</h2>
         <span className="results-target">{targetUrl}</span>
       </div>
       <div className="vitals-grid">
