@@ -1,0 +1,95 @@
+You are a Senior Software Architect with 15+ years of experience building production-ready web applications.
+
+Read the uploaded files:
+1. PROJECT_CONTEXT.md
+2. API_SPEC.md
+
+Do not write any implementation code.
+
+Your task is to design the complete software architecture for this project.
+
+Project Goal:
+Build "Page Pulse", a web application that audits any webpage URL. The backend should fetch a webpage, analyze it, and return a JSON report containing:
+- HTTP Status
+- Response Time
+- Page Title
+- Meta Description
+- H1 Count
+- Images Missing Alt Text
+- Approximate Word Count
+
+The frontend should provide a simple interface for users to enter a URL, submit it to the backend, and display the results cleanly.
+
+The architecture must be production-ready and suitable for an internship-level project.
+
+Return the following sections:
+
+## 1. Project Folder Structure
+Provide the complete directory tree for:
+- Backend
+- Frontend
+- Tests
+- Documentation
+
+## 2. Backend Architecture
+Explain:
+- Modules
+- Responsibilities of each module
+- Request flow
+- Error handling flow
+- Utility functions
+- Configuration management
+
+## 3. Frontend Architecture
+Explain:
+- Components
+- Pages
+- State management
+- API communication
+- Error handling
+- Loading states
+
+## 4. API Design
+Describe:
+- Endpoint(s)
+- Request format
+- Response format
+- Error responses
+- HTTP status codes
+
+## 5. Data Flow
+Explain step-by-step:
+User → Frontend → Backend → Website → Parser → JSON → Frontend → User
+
+## 6. Deployment Architecture
+Describe:
+- Frontend deployment
+- Backend deployment
+- Environment variables
+- CORS
+- Production considerations
+
+## 7. Testing Strategy
+Explain:
+- Unit tests
+- Integration tests
+- Parser testing
+- Error handling tests
+
+## 8. Security Considerations
+Include:
+- URL validation
+- Timeout handling
+- Preventing crashes
+- Handling malicious or invalid inputs
+
+## 9. Future Improvements
+List features that could be added if there were more development time.
+
+Important Instructions:
+- Do NOT generate any code.
+- Do NOT generate file contents.
+- Do NOT generate React or FastAPI implementation.
+- Focus only on architecture and design.
+- Use professional software engineering terminology.
+- Organize the answer with clear headings and bullet points.

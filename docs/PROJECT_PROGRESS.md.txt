@@ -1,0 +1,22 @@
+PROJECT NAME
+Page Pulse
+
+STATUS
+
+Architecture : Pending
+
+Backend : Pending
+
+Frontend : Pending
+
+Testing : Pending
+
+README : Pending
+
+Deployment : Pending
+
+Loom : Pending
+
+Known Bugs
+
+None

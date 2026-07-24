@@ -1,0 +1,35 @@
+POST /audit
+
+Request
+
+{
+"url":"https://example.com"
+}
+
+Response
+
+{
+status
+
+response_time
+
+page_title
+
+meta_description
+
+h1_count
+
+images_missing_alt
+
+word_count
+}
+
+Possible Errors
+
+400 Invalid URL
+
+408 Timeout
+
+415 Non HTML
+
+500 Internal Server Error

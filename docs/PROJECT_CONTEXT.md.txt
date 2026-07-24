@@ -1,0 +1,77 @@
+# PROJECT CONTEXT
+
+Project Name:
+Page Pulse
+
+Purpose:
+Build a web application that audits any webpage URL.
+
+Assignment:
+Digital Heroes Software Development Internship
+
+Tech Stack:
+Frontend:
+React + Vite
+
+Backend:
+FastAPI
+
+Parsing:
+BeautifulSoup4
+
+HTTP:
+requests
+
+Deployment:
+Frontend → Vercel
+Backend → Render
+
+Features:
+1. Accept URL
+2. Validate URL
+3. Fetch webpage
+4. Measure response time
+5. HTTP status
+6. Page title
+7. Meta description
+8. H1 count
+9. Images missing alt
+10. Approximate word count
+11. Error handling
+12. JSON API
+
+Errors to handle:
+Invalid URL
+Timeout
+404
+500
+Non HTML
+
+Task B:
+
+pytest tests
+
+README
+
+Loom demo
+
+Footer:
+Built for Digital Heroes Training Task
+(link to https://digitalheroesco.com)
+
+Coding rules:
+
+Write production-quality code.
+
+Use clean folder structure.
+
+Comment only where necessary.
+
+Do not generate placeholder code.
+
+Every file should be complete.
+
+If improving existing code,
+modify only necessary files.
+
+Never rewrite unrelated files.
