@@ -5,7 +5,7 @@ STATUS
 
 Architecture : Pending
 
-Backend : Pending
+Backend : Backend ✅
 
 Frontend : Pending
 
