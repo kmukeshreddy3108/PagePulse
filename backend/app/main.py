@@ -84,7 +84,7 @@ async def run_audit(payload: AuditRequest):
     if "html" not in content_type:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Expected an HTML document but received Content-Type '{content_type || 'unknown'}'."
+            detail=f"Expected an HTML document but received Content-Type '{content_type or 'unknown'}'."
         )
 
     html_content = response.text
