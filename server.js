@@ -127,6 +127,8 @@ async function handleAudit(req, res) {
 
 app.post('/api/v1/audit', handleAudit);
 app.post('/api/audit', handleAudit);
+app.post('/audit', handleAudit);
+
 
 if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');

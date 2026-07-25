@@ -28,6 +28,8 @@ app.add_middleware(
 
 # Register routes
 app.include_router(audit.router, prefix="/api")
+app.include_router(audit.router)
+
 
 
 @app.get("/")
