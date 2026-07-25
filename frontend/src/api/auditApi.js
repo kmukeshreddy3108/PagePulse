@@ -15,13 +15,11 @@ function getEndpoint() {
   if (!envUrl) return "/api/audit";
 
   try {
-    const urlObj = new URL(envUrl, window.location.origin);
-    if (urlObj.origin !== window.location.origin) {
-      return "/api/audit";
-    }
-    return `${urlObj.pathname.replace(/\/+$/, "")}/api/audit`;
+    const urlObj = new URL(envUrl);
+    return `${urlObj.origin}${urlObj.pathname.replace(/\/+$/, "")}/api/audit`;
   } catch {
-    return "/api/audit";
+    // If envUrl is a relative path (e.g. "/backend")
+    return `${envUrl.replace(/\/+$/, "")}/api/audit`;
   }
 }
 
