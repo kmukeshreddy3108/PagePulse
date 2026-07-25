@@ -31,6 +31,7 @@ function getEndpoint() {
  */
 export const runAudit = async (url) => {
   const endpoint = getEndpoint();
+  console.log("[Page Pulse] Target endpoint:", endpoint);
 
   try {
     const controller = new AbortController();
