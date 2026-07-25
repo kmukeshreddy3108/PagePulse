@@ -1,67 +1,89 @@
-import axios from "axios";
-
-const rawApiUrl = import.meta.env.VITE_API_BASE_URL;
-
-if (!rawApiUrl && import.meta.env.PROD) {
-  console.warn(
-    "[Page Pulse] VITE_API_BASE_URL is not defined in environment variables. Falling back to default backend URL."
-  );
+export class AuditApiError extends Error {
+  constructor(message, statusCode = null) {
+    super(message);
+    this.name = "AuditApiError";
+    this.statusCode = statusCode;
+  }
 }
 
-const API_BASE_URL = (rawApiUrl || "http://127.0.0.1:8000").replace(
-  /\/+$/,
-  ""
-);
-
-const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 45000;
-
 /**
- * Axios instance configured for Page Pulse API
+ * Determines the target API endpoint.
+ * Always targets the relative /api/audit route on the current server.
  */
-const auditApi = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: API_TIMEOUT,
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
+function getEndpoint() {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!envUrl) return "/api/audit";
+
+  try {
+    const urlObj = new URL(envUrl, window.location.origin);
+    if (urlObj.origin !== window.location.origin) {
+      return "/api/audit";
+    }
+    return `${urlObj.pathname.replace(/\/+$/, "")}/api/audit`;
+  } catch {
+    return "/api/audit";
+  }
+}
 
 /**
  * Performs a health audit scan for a given target URL.
  *
  * @param {string} url - Validated HTTP/HTTPS URL to scan
- * @returns {Promise<Object>} Backend audit result matching AuditResponse schema
+ * @returns {Promise<Object>} Audit result object
  */
 export const runAudit = async (url) => {
+  const endpoint = getEndpoint();
+
   try {
-    const response = await auditApi.post("/api/audit", { url });
-    return response.data;
-  } catch (error) {
-    if (error.code === "ECONNABORTED") {
-      throw new Error(
-        "The request timed out. The backend server might be starting up (cold start) or taking too long to audit the target site."
-      );
-    }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000);
 
-    if (error.response) {
-      const detail = error.response.data?.detail;
-      if (Array.isArray(detail)) {
-        throw new Error(detail.map((err) => err.msg).join(", "));
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ url }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      let msg = "Server error occurred.";
+      if (Array.isArray(data.detail)) {
+        msg = data.detail.map((err) => err.msg || err.message || JSON.stringify(err)).join(", ");
+      } else if (typeof data.detail === "string") {
+        msg = data.detail;
+      } else if (data.detail?.message) {
+        msg = data.detail.message;
+      } else if (data.message) {
+        msg = data.message;
+      } else {
+        msg = `Server returned status ${response.status}`;
       }
-      throw new Error(
-        detail || `Server returned error (${error.response.status})`
-      );
+      throw new AuditApiError(msg, response.status);
     }
 
-    if (error.request) {
-      throw new Error(
-        "Could not reach the Page Pulse API. Please check your internet connection or backend URL."
+    return data;
+  } catch (error) {
+    if (error instanceof AuditApiError) {
+      throw error;
+    }
+    if (error.name === "AbortError") {
+      throw new AuditApiError(
+        "The request timed out while auditing the target site.",
+        408
       );
     }
-
-    throw new Error(error.message || "An unexpected error occurred.");
+    throw new AuditApiError(
+      error.message || "Could not reach the Page Pulse API.",
+      0
+    );
   }
 };
 
-export default auditApi;
+export default { runAudit };
